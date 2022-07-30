@@ -2,7 +2,7 @@
 #include "analize_scan_utils.hpp"
 
 
-TEST(LaserScanToPolarV, BasicUse){
+TEST(LaserScanToPolarV, BasicCaseOfUse){
     
     std::vector<float> ranges;
     std::vector<polar> polarv;
@@ -24,7 +24,7 @@ TEST(LaserScanToPolarV, BasicUse){
     }
 }
 
-TEST(LaserScanToPolarV, BasicUseNegativeNumbers){
+TEST(LaserScanToPolarV, BasicCaseOfUseNegativeNumbers){
     
     std::vector<float> ranges;
     std::vector<polar> polarv;
@@ -47,7 +47,7 @@ TEST(LaserScanToPolarV, BasicUseNegativeNumbers){
 }
 
 
-TEST(LaserScanToPolarV, BasicUseDeltaZero){
+TEST(LaserScanToPolarV, BasicCaseOfUseDeltaZero){
     std::vector<float> ranges;
     std::vector<polar> polarv;
     float delta = 0;
@@ -66,13 +66,64 @@ TEST(LaserScanToPolarV, BasicUseDeltaZero){
     }
 }
 
-
 TEST(LaserScanToPolarV, EmptyRange){
     
     std::vector<float> ranges;
     std::vector<polar> polarv;
     float delta = 0.1;
     laser_scan_to_polarv(ranges, delta, polarv);
-    EXPECT_EQ(polarv.size(),0);
+    EXPECT_EQ(polarv.size(),(long unsigned int)0);
 }
 
+TEST(LaserScanToPolarV, NotEmptyPolarV){
+    
+    std::vector<float> ranges;
+    std::vector<polar> polarv;
+
+    float delta = 0.1;
+    
+    for (int i=0; i<=15; i++)
+    {
+        ranges.push_back(i);
+        polarv.emplace_back(polar(500.0,500.0));
+    }
+
+    
+    laser_scan_to_polarv(ranges, delta, polarv);
+
+    for (int i=0; i<=15; i++)
+    {
+        EXPECT_FLOAT_EQ(polarv[i].mod,  i);
+        EXPECT_FLOAT_EQ(polarv[i].alfa, i*delta);
+    }
+}
+
+//TEST(GetClusters, BasicCaseOfUse){
+//    
+//    std::vector<float> ranges;
+//    std::vector<polar> polarv;
+//
+//    float delta = 0.1;
+//    
+//    for (int i=0; i<=15; i++)
+//    {
+//        ranges.push_back(i);
+//        polarv.emplace_back(polarv(500.0,500.0))
+//    }
+//
+//    
+//    laser_scan_to_polarv(ranges, delta, polarv);
+//
+//    for (int i=0; i<=15; i++)
+//    {
+//        EXPECT_FLOAT_EQ(polarv[i].mod,  i);
+//        EXPECT_FLOAT_EQ(polarv[i].alfa, i*delta);
+//    }
+//
+//
+//    std::vector<float> ranges;
+//    std::vector<polar> polarv;
+//    float delta = 0.1;
+//    laser_scan_to_polarv(ranges, delta, polarv);
+//    EXPECT_EQ(polarv.size(),0);
+//}

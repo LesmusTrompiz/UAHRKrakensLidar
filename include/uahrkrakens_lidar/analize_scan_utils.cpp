@@ -15,16 +15,35 @@
 
 
 void laser_scan_to_polarv(const std::vector<float> &ranges, const float &delta_angle, std::vector<polar> &polar_vector){
+    /**
+        * @brief Given all the ranges of a
+        * laser scan and the angle increment
+        * between them, stores the values 
+        * as a polar struct in the polar vector.
+    
+        * @param ranges ranges of a laser scan
+        * @param delta_angle angle increment between ranges
+        * @param polar_vector a vector that contains the 
+        * ranges as polar form
+
+    */
+
+    // Clean the old values of the vector
+    polar_vector.clear();                                            
+
+    // Create and auxiliar variable
+    // that stores the current angle
+    // of the beam
     float angle = 0.0;
 
-
+    // Iterate over the range vector and 
+    // store the values of the beams as 
+    // polar struct
     for (auto r : ranges)
     {
         polar_vector.emplace_back(polar(r,angle));
         angle = angle + delta_angle;
     }
-
-
     return;
 }
 
