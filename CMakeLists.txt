@@ -20,8 +20,17 @@ find_package(ament_cmake REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 
+# Add directories
+set(UTILS_PATH "./include/uahrkrakens_lidar")
 
-add_executable(analize_scan src/analize_scan_node.cpp ${PROTOCOL_SRC})
+FILE(GLOB UTILS_SRC 
+  "${UTILS_PATH}/*.cpp"
+)
+
+
+
+
+add_executable(analize_scan src/analize_scan_node.cpp ${UTILS_SRC})
 target_link_libraries(analize_scan)
 
 
