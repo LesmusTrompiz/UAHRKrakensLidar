@@ -48,10 +48,8 @@ TEST(LaserScanToPolarV, BasicUseNegativeNumbers){
 
 
 TEST(LaserScanToPolarV, BasicUseDeltaZero){
-    
     std::vector<float> ranges;
     std::vector<polar> polarv;
-
     float delta = 0;
     
     for (int i=0; i<=12; i++)
@@ -59,7 +57,6 @@ TEST(LaserScanToPolarV, BasicUseDeltaZero){
         ranges.push_back(i);
     }
 
-    
     laser_scan_to_polarv(ranges, delta, polarv);
 
     for (int i=0; i<=12; i++)
@@ -75,9 +72,7 @@ TEST(LaserScanToPolarV, EmptyRange){
     std::vector<float> ranges;
     std::vector<polar> polarv;
     float delta = 0.1;
-    
     laser_scan_to_polarv(ranges, delta, polarv);
-
     EXPECT_EQ(polarv.size(),0);
 }
 
