@@ -27,26 +27,23 @@ FILE(GLOB UTILS_SRC
   "${UTILS_PATH}/*.cpp"
 )
 
-
+include_directories(
+  ${UTILS_PATH}
+)
 
 
 add_executable(analize_scan src/analize_scan_node.cpp ${UTILS_SRC})
 target_link_libraries(analize_scan)
 
-
 ament_target_dependencies(analize_scan rclcpp sensor_msgs)
 
-
-
 if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # uncomment the line when a copyright and license is not present in all source files
-  #set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # uncomment the line when this package is not in a git repo
-  #set(ament_cmake_cpplint_FOUND TRUE)
-  ament_lint_auto_find_test_dependencies()
+  find_package(ament_cmake_gtest)
+  find_package(ros_testing REQUIRED)
+
+  ament_add_gtest(test_utils tests/scan_utils_test.cpp ${UTILS_SRC})
+  #target_include_directories(test_utils PUBLIC tests/) 
+
 endif()
 
 ament_package()

@@ -1,7 +1,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/laser_scan.hpp"
-
-
+#include "analize_scan_utils.hpp"
 
 class AnalizeScanNode : public rclcpp::Node
 {
