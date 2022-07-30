@@ -1,18 +1,24 @@
-#ifndef POLAR
+#ifndef POLAR_CONST
 
-#define POLAR
+#define POLAR_CONST
+#include <vector>
 
 
 struct polar
 {
     float mod;
-    float degrees;
-    polar(void);
-    polar(float _mod, float _degrees);
+    float alfa;
+    //polar(void);
+    //polar(float _mod, float _alfa);
+    polar(void) : mod{0}, alfa{0} {}
+    polar(float _mod,float _alfa) : mod{_mod}, alfa{_alfa} {}
 };
 
-polar::polar(void) : mod{0}, degrees{0} {}
-polar::polar(float _mod,float _degrees) : mod{_mod}, degrees{_degrees} {}
+//polar::polar(void) : mod{0}, alfa{0} {}
+//polar::polar(float _mod,float _alfa) : mod{_mod}, alfa{_alfa} {}
+
+
+typedef std::vector<polar> cluster;
 
 
 #endif

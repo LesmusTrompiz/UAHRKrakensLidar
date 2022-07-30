@@ -42,7 +42,7 @@ if(BUILD_TESTING)
   find_package(ros_testing REQUIRED)
 
   ament_add_gtest(test_utils tests/scan_utils_test.cpp ${UTILS_SRC})
-  #target_include_directories(test_utils PUBLIC tests/) 
+  target_include_directories(test_utils PUBLIC tests/) 
 
 endif()
 
