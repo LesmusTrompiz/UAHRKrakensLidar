@@ -18,6 +18,16 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(rclcpp REQUIRED)
+
+
+add_executable(analize_scan src/analize_scan_node.cpp ${PROTOCOL_SRC})
+target_link_libraries(analize_scan)
+
+
+ament_target_dependencies(analize_scan rclcpp sensor_msgs)
+
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
