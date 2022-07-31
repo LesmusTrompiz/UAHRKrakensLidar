@@ -163,3 +163,6 @@ void get_clusters(const std::vector<polar> &scan, std::vector<cluster> &clusters
 }
 
 
+void from_polar_to_cartesian(const std::vector<polar> &scan, std::vector<point2d> &clusters,)
+
+
