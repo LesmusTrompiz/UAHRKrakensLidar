@@ -16,16 +16,6 @@ extern "C"{
 //}
 
 
-inline float calculate_square_dist(const Point2d &p1, const Point2d &p2)
-{
-    return ((p2.x - p1.x) * (p2.x - p1.x)) + ((p2.y - p1.y) * (p2.y - p1.y));
-}
-
-inline bool same_cluster(Point2d p1, Point2d p2, float max_dist)
-{
-    return calculate_square_dist(p1, p2) <= (max_dist * max_dist);
-}
-
 
 void LaserRangeTo2dPoints(const std::vector<float> &ranges,const float &angle_increment, std::vector<Point2d> &out_points)
 {
@@ -39,58 +29,32 @@ void LaserRangeTo2dPoints(const std::vector<float> &ranges,const float &angle_in
     return;
 }
 
-float get_cluster_square_length(const std::vector<Point2d> &cluster) {
-    float length = 0.0;
-    auto  old_p   = cluster.begin();
 
-    for (auto p = cluster.begin() +1; p < cluster.end(); p++ )
-    {
-        length = length + calculate_square_dist(*old_p,*p);
-    }
-    return length;
+inline float calculate_square_dist(const Point2d &p1, const Point2d &p2)
+{
+    return ((p2.x - p1.x) * (p2.x - p1.x)) + ((p2.y - p1.y) * (p2.y - p1.y));
 }
+
+inline float calculate_dist(const Point2d &p1, const Point2d &p2)
+{
+    return sqrt(((p2.x - p1.x) * (p2.x - p1.x)) + ((p2.y - p1.y) * (p2.y - p1.y)));
+}
+
+inline bool same_cluster(Point2d p1, Point2d p2, float max_dist)
+{
+    return calculate_square_dist(p1, p2) <= (max_dist * max_dist);
+}
+
 
 inline bool object_between_end_and_start(const std::vector<cluster> &clusters, const Point2d &end_polar, const float &dist_increment)
 {
     // This special case can only occur when the output clusters size
-    //  is not empty  
-
+    // is not empty  
     return (clusters.size() && same_cluster(clusters[0][0],end_polar,dist_increment));
 }
 
 
-Point2d get_cluster_contour_centroid (const std::vector<Point2d> &cluster) {
-    Point2d centroid;
 
-    for (auto &p : cluster)
-    {
-        centroid.x = centroid.x + p.x;
-        centroid.y = centroid.y + p.y;
-    }
-    centroid.x = centroid.x / cluster.size();
-    centroid.y = centroid.y / cluster.size();
-    return centroid;
-}
-
-void filter_cluster_by_length(const std::vector<std::vector<Point2d>> &clusters, const float &min_length, const float &max_length, std::vector<std::vector<Point2d>> &out_clusters) {
-    
-    float square_min_length     = min_length * min_length;
-    float square_max_length     = max_length * max_length;
-    float cluster_square_length = 0;
-
-    out_clusters.clear();
-
-    for(auto &c : clusters)
-    {
-        cluster_square_length = get_cluster_square_length(c);
-        if ((square_min_length <= cluster_square_length) && (cluster_square_length <= square_max_length))
-        {
-            out_clusters.push_back(c);
-        }
-    }
-
-    return;
-}
 
 
 
@@ -180,6 +144,51 @@ void get_clusters(const std::vector<Point2d> &scan, std::vector<std::vector<Poin
     }
     return;
 }
+
+float get_cluster_length(const std::vector<Point2d> &cluster) {
+    float length = 0.0;
+    auto  old_p   = cluster.begin();
+
+    for (auto p = cluster.begin() +1; p < cluster.end(); p++ )
+    {
+        length = length + calculate_dist(*old_p,*p);
+        std::cout << calculate_dist(*old_p,*p);
+        old_p = p;
+    }
+    return length;
+}
+
+void filter_cluster_by_length(const std::vector<std::vector<Point2d>> &clusters, const float &min_length, const float &max_length, std::vector<std::vector<Point2d>> &out_clusters) {
+    
+    float cluster_square_length = 0;
+
+    out_clusters.clear();
+
+    for(auto &c : clusters)
+    {
+        cluster_square_length = get_cluster_length(c);
+        if ((min_length <= cluster_square_length) && (cluster_square_length <= max_length))
+        {
+            out_clusters.push_back(c);
+        }
+    }
+
+    return;
+}
+
+Point2d get_cluster_contour_centroid (const std::vector<Point2d> &cluster) {
+    Point2d centroid;
+
+    for (auto &p : cluster)
+    {
+        centroid.x = centroid.x + p.x;
+        centroid.y = centroid.y + p.y;
+    }
+    centroid.x = centroid.x / cluster.size();
+    centroid.y = centroid.y / cluster.size();
+    return centroid;
+}
+
 
 Point2d nearest_centroid(const Point2d &center, const std::vector<Point2d> &neighbours)
 {

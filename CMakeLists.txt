@@ -46,6 +46,10 @@ if(BUILD_TESTING)
   
   ament_add_gtest(laser_range_to_2d_points_test tests/LaserRangeTo2dPoints.cpp ${UTILS_SRC})
   target_include_directories(laser_range_to_2d_points_test PUBLIC tests/) 
+
+  ament_add_gtest(get_clusters_length_test tests/GetClusterLength.cpp ${UTILS_SRC})
+  target_include_directories(get_clusters_length_test PUBLIC tests/) 
+
 endif()
 
 ament_package()
