@@ -1,6 +1,8 @@
 #include "analize_scan_utils.hpp"
 #include <iostream>
-
+extern "C"{
+    #include <math.h>
+}
 //void filter_beams_by_range(const std::vector<float> ranges, std::vector<polar> polars, const float min_range, const float max_range, const float min_angle, const float max_angle, const float delta_angle)
 //{
 //    /**
@@ -14,68 +16,85 @@
 //}
 
 
-void laser_scan_to_polarv(const std::vector<float> &ranges, const float &delta_angle, std::vector<polar> &polar_vector){
-    /**
-        * @brief Given all the ranges of a
-        * laser scan and the angle increment
-        * between them, stores the values 
-        * as a polar struct in the polar vector.
-    
-        * @param ranges ranges of a laser scan
-        * @param delta_angle angle increment between ranges
-        * @param polar_vector a vector that contains the 
-        * ranges as polar form
+inline float calculate_square_dist(const Point2d &p1, const Point2d &p2)
+{
+    return ((p2.x - p1.x) * (p2.x - p1.x)) + ((p2.y - p1.y) * (p2.y - p1.y));
+}
 
-    */
+inline bool same_cluster(Point2d p1, Point2d p2, float max_dist)
+{
+    return calculate_square_dist(p1, p2) <= (max_dist * max_dist);
+}
 
-    // Clean the old values of the output vector
-    polar_vector.clear();                                            
 
-    // Create and auxiliar variable
-    // that stores the current angle
-    // of the beam
+void LaserRangeTo2dPoints(const std::vector<float> &ranges,const float &angle_increment, std::vector<Point2d> &out_points)
+{
     float angle = 0.0;
-
-    // Iterate over the range vector and 
-    // store the values of the beams as 
-    // polar struct
-    for (auto & r : ranges)
+    out_points.clear();
+    for (auto &r : ranges)
     {
-        polar_vector.emplace_back(polar(r,angle));
-        angle = angle + delta_angle;
+        out_points.emplace_back(r*cos(angle), r * sin(angle));
+        angle = angle + angle_increment;
     }
     return;
 }
 
-inline bool same_cluster(const polar &p, const polar &edge,const float &mod_increment, const float &alfa_increment)
-{
-    return ((edge.mod - mod_increment  <= p.mod) && (edge.alfa - alfa_increment  <= p.alfa)
-    &&
-    (p.mod <= edge.mod + mod_increment) && (p.alfa <= edge.alfa + alfa_increment));
+float get_cluster_square_length(const std::vector<Point2d> &cluster) {
+    float length = 0.0;
+    auto  old_p   = cluster.begin();
+
+    for (auto p = cluster.begin() +1; p < cluster.end(); p++ )
+    {
+        length = length + calculate_square_dist(*old_p,*p);
+    }
+    return length;
 }
 
-bool object_between_end_and_start(const std::vector<cluster> &clusters, const polar &end_polar, const float &mod_increment, const float &alfa_increment)
+inline bool object_between_end_and_start(const std::vector<cluster> &clusters, const Point2d &end_polar, const float &dist_increment)
 {
     // This special case can only occur when the output clusters size
     //  is not empty  
-    if (clusters.size())
-    {
-        // The nearest polar to the polar in 
-        // the scan end will be the first 
-        // of the first cluster.
-        auto p = clusters[0][0];
 
-        // Before comparing them its neccesary
-        // to add 360 degrees to the first scan
-        // cause other whise it will be whole
-        // circunference between them
-        p.alfa = p.alfa + 360;
-        return (same_cluster(p,end_polar,mod_increment,alfa_increment));
-    }
-    return false;
+    return (clusters.size() && same_cluster(clusters[0][0],end_polar,dist_increment));
 }
 
-void get_clusters(const std::vector<polar> &scan, std::vector<cluster> &clusters, const float &mod_increment, const float &alfa_increment)
+
+Point2d get_cluster_contour_centroid (const std::vector<Point2d> &cluster) {
+    Point2d centroid;
+
+    for (auto &p : cluster)
+    {
+        centroid.x = centroid.x + p.x;
+        centroid.y = centroid.y + p.y;
+    }
+    centroid.x = centroid.x / cluster.size();
+    centroid.y = centroid.y / cluster.size();
+    return centroid;
+}
+
+void filter_cluster_by_length(const std::vector<std::vector<Point2d>> &clusters, const float &min_length, const float &max_length, std::vector<std::vector<Point2d>> &out_clusters) {
+    
+    float square_min_length     = min_length * min_length;
+    float square_max_length     = max_length * max_length;
+    float cluster_square_length = 0;
+
+    out_clusters.clear();
+
+    for(auto &c : clusters)
+    {
+        cluster_square_length = get_cluster_square_length(c);
+        if ((square_min_length <= cluster_square_length) && (cluster_square_length <= square_max_length))
+        {
+            out_clusters.push_back(c);
+        }
+    }
+
+    return;
+}
+
+
+
+void get_clusters(const std::vector<Point2d> &scan, std::vector<std::vector<Point2d>> &clusters, const float &dist_increment)
 {
     /**
      * @brief Search the clusters in a polar vector and stores in the output clusters vector.   
@@ -100,7 +119,7 @@ void get_clusters(const std::vector<polar> &scan, std::vector<cluster> &clusters
     {
 
         // Create and auxiliar cluster, it will be used
-        // to feed the output cluester vector.
+        // to feed the output cluster vector.
         cluster aux_cluster;
 
         // Reserve a space of 20 polars to avoid moving procces
@@ -122,7 +141,7 @@ void get_clusters(const std::vector<polar> &scan, std::vector<cluster> &clusters
             // If the actual polar and the last one are 
             // part of the same cluster add it to the actual
             // cluster
-            if (same_cluster(*p,*old_p,mod_increment,alfa_increment))
+            if (same_cluster(*p,*old_p,dist_increment))
             {
                 aux_cluster.push_back(*p); 
             }
@@ -152,7 +171,7 @@ void get_clusters(const std::vector<polar> &scan, std::vector<cluster> &clusters
 
         // If the last cluster is part of the first one insert the containt of
         // aux_cluster in the first cluster
-        if(object_between_end_and_start(clusters, *old_p, mod_increment, alfa_increment)) 
+        if(object_between_end_and_start(clusters, *old_p, dist_increment)) 
             clusters[0].insert(clusters[0].end(),aux_cluster.begin(), aux_cluster.end());                
             
         // If it isnt the special case just push the aux_cluster 
@@ -162,7 +181,24 @@ void get_clusters(const std::vector<polar> &scan, std::vector<cluster> &clusters
     return;
 }
 
+Point2d nearest_centroid(const Point2d &center, const std::vector<Point2d> &neighbours)
+{
+    auto  nearest_neigh = neighbours.begin();
+    float min_dist      = calculate_square_dist(center, *nearest_neigh);
+    float dist          = 0.0;
 
-void from_polar_to_cartesian(const std::vector<polar> &scan, std::vector<point2d> &clusters,)
+    for (auto p = neighbours.begin() + 1; p < neighbours.end(); p++)
+    {
+        dist = calculate_square_dist(*p, center);
+        if (dist < min_dist)
+        {
+            nearest_neigh = p;
+            min_dist      = dist;
+        }
+    }
+    return *nearest_neigh;
+}
+
+
 
 

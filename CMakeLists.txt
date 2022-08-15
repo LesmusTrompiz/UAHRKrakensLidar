@@ -44,8 +44,8 @@ if(BUILD_TESTING)
   ament_add_gtest(get_clusters_test tests/GetClusters.cpp ${UTILS_SRC})
   target_include_directories(get_clusters_test PUBLIC tests/) 
   
-  ament_add_gtest(laser_scan_to_polar_vector_test tests/LaserScanToPolarV.cpp ${UTILS_SRC})
-  target_include_directories(laser_scan_to_polar_vector_test PUBLIC tests/) 
+  ament_add_gtest(laser_range_to_2d_points_test tests/LaserRangeTo2dPoints.cpp ${UTILS_SRC})
+  target_include_directories(laser_range_to_2d_points_test PUBLIC tests/) 
 endif()
 
 ament_package()

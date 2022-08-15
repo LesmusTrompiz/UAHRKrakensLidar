@@ -1,11 +1,10 @@
 
-#include "polar.hpp"
+#include "point2d.hpp"
 
 #ifndef ANALIZE_SCAN_UTILS_HPP
 #define ANALIZE_SCAN_UTILS_HPP
-
-    void laser_scan_to_polarv(const std::vector<float> &ranges, const float &delta_angle, std::vector<polar> &polar_vector);
-    void get_clusters(const std::vector<polar> &scan, std::vector<cluster> &clusters, const float &range_edge, const float &angle_edge);
+    void LaserRangeTo2dPoints(const std::vector<float> &ranges,const float &angle_increment, std::vector<Point2d> &out_points);
+    void get_clusters(const std::vector<Point2d> &scan, std::vector<std::vector<Point2d>> &clusters, const float &dist_increment);
 
 #endif
 
