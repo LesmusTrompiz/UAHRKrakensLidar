@@ -281,9 +281,8 @@ TEST(FilterClusterByLength, PositiveCoordsAndNegativeCoords){
     /**
         @test Test the basic use of the 
         FilterClusterByLength function
-        with a 5 point cluster that
-        between points is a distance
-        of -1.
+        with a set of negative and
+        positive clusters
     */
     cluster cluster_length_1;
     cluster cluster_length_2;
