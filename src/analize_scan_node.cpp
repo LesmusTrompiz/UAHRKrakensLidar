@@ -11,6 +11,10 @@ class AnalizeScanNode : public rclcpp::Node
     private:
         rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr scan_sub;
         void scan_cb(const sensor_msgs::msg::LaserScan::SharedPtr msg);
+        std::vector<Point2d> cloud;
+        std::vector<cluster> clusters;
+        std::vector<cluster> filtered_clusters;
+
 };
 
 
@@ -23,10 +27,10 @@ AnalizeScanNode::~AnalizeScanNode(void){}
 
 void AnalizeScanNode::scan_cb(const sensor_msgs::msg::LaserScan::SharedPtr msg)
 {
-    //LaserRangeTo2dPoints(msg)
-
-
-
+    
+    LaserRangeTo2dPoints(msg->ranges,msg->angle_increment, cloud);
+    get_clusters(cloud, clusters, 0.1);
+    filter_clusters_by_length(clusters, 0.03, 0.142, filtered_clusters);
 
     return;
 }

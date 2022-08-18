@@ -2,6 +2,7 @@
 #include <iostream>
 extern "C"{
     #include <math.h>
+    #include <cassert>
 }
 //void filter_beams_by_range(const std::vector<float> ranges, std::vector<polar> polars, const float min_range, const float max_range, const float min_angle, const float max_angle, const float delta_angle)
 //{
@@ -52,11 +53,6 @@ inline bool object_between_end_and_start(const std::vector<cluster> &clusters, c
     // is not empty  
     return (clusters.size() && same_cluster(clusters[0][0],end_polar,dist_increment));
 }
-
-
-
-
-
 
 void get_clusters(const std::vector<Point2d> &scan, std::vector<std::vector<Point2d>> &clusters, const float &dist_increment)
 {
@@ -176,16 +172,28 @@ void filter_clusters_by_length(const std::vector<std::vector<Point2d>> &clusters
     return;
 }
 
-Point2d get_cluster_contour_centroid (const std::vector<Point2d> &cluster) {
+Point2d get_cluster_contour_centroid (const cluster &cluster_) {
     Point2d centroid;
+    
+    // There is a filter before calling
+    // this function that prevents 
+    // the input of an empty cluster.
+    
+    // To prevent the execution of an
+    // IF inside this loop in the optimized
+    // version I am going to put here 
+    // an assert that will check the no
+    // entry of an empty vector in the
+    // production code.
+    assert(cluster_.size() != 0);
 
-    for (auto &p : cluster)
+    for (auto &p : cluster_)
     {
         centroid.x = centroid.x + p.x;
         centroid.y = centroid.y + p.y;
     }
-    centroid.x = centroid.x / cluster.size();
-    centroid.y = centroid.y / cluster.size();
+    centroid.x = centroid.x / cluster_.size();
+    centroid.y = centroid.y / cluster_.size();
     return centroid;
 }
 
