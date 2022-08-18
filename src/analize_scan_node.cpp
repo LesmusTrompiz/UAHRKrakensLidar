@@ -23,7 +23,12 @@ AnalizeScanNode::~AnalizeScanNode(void){}
 
 void AnalizeScanNode::scan_cb(const sensor_msgs::msg::LaserScan::SharedPtr msg)
 {
+    //LaserRangeTo2dPoints(msg)
 
+
+
+
+    return;
 }
 
 

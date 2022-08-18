@@ -158,7 +158,7 @@ float get_cluster_length(const std::vector<Point2d> &cluster) {
     return length;
 }
 
-void filter_cluster_by_length(const std::vector<std::vector<Point2d>> &clusters, const float &min_length, const float &max_length, std::vector<std::vector<Point2d>> &out_clusters) {
+void filter_clusters_by_length(const std::vector<std::vector<Point2d>> &clusters, const float &min_length, const float &max_length, std::vector<std::vector<Point2d>> &out_clusters) {
     
     float cluster_square_length = 0;
 
@@ -172,7 +172,7 @@ void filter_cluster_by_length(const std::vector<std::vector<Point2d>> &clusters,
             out_clusters.push_back(c);
         }
     }
-
+    //std::copy_if(begin(clusters),end(clusters),std::back_inserter(out_clusters),)
     return;
 }
 

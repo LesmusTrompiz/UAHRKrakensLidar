@@ -50,6 +50,10 @@ if(BUILD_TESTING)
   ament_add_gtest(get_clusters_length_test tests/GetClusterLength.cpp ${UTILS_SRC})
   target_include_directories(get_clusters_length_test PUBLIC tests/) 
 
+  ament_add_gtest(filter_cluster_by_length_test tests/FilterClustersByLength.cpp ${UTILS_SRC})
+  target_include_directories(filter_cluster_by_length_test PUBLIC tests/) 
+
+
 endif()
 
 ament_package()
