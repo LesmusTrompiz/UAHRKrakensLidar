@@ -36,7 +36,12 @@ include_directories(
 add_executable(analize_scan src/analize_scan_node.cpp ${UTILS_SRC})
 target_link_libraries(analize_scan)
 
-ament_target_dependencies(analize_scan rclcpp sensor_msgs)
+ament_target_dependencies(analize_scan rclcpp sensor_msgs geometry_msgs)
+
+install(TARGETS
+  analize_scan
+  DESTINATION lib/${PROJECT_NAME})
+
 
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest)
