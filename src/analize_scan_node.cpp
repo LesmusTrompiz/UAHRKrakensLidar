@@ -26,6 +26,9 @@ AnalizeScanNode::AnalizeScanNode(void) : Node("analize_scan_node")
     using std::placeholders::_1;
     this->scan_sub = this->create_subscription<sensor_msgs::msg::LaserScan>("scan", 10, std::bind(&AnalizeScanNode::scan_cb, this, _1));
     this->obs_pub  = this->create_publisher<geometry_msgs::msg::PoseStamped>("obstacles", 10);
+    cloud.reserve(400);
+    clusters.reserve(25);
+    filtered_clusters.reserve(20);
 }
 AnalizeScanNode::~AnalizeScanNode(void){}
 
