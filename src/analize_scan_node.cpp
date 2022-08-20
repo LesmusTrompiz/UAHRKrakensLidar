@@ -1,5 +1,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/laser_scan.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+
 #include "analize_scan_utils.hpp"
 
 class AnalizeScanNode : public rclcpp::Node
@@ -10,6 +12,7 @@ class AnalizeScanNode : public rclcpp::Node
 
     private:
         rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr scan_sub;
+        rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr obs_pub;
         void scan_cb(const sensor_msgs::msg::LaserScan::SharedPtr msg);
         std::vector<Point2d> cloud;
         std::vector<cluster> clusters;
@@ -22,6 +25,7 @@ AnalizeScanNode::AnalizeScanNode(void) : Node("analize_scan_node")
 {
     using std::placeholders::_1;
     this->scan_sub = this->create_subscription<sensor_msgs::msg::LaserScan>("scan", 10, std::bind(&AnalizeScanNode::scan_cb, this, _1));
+    this->obs_pub  = this->create_publisher<geometry_msgs::msg::PoseStamped>("obstacles", 10);
 }
 AnalizeScanNode::~AnalizeScanNode(void){}
 
