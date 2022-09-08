@@ -40,13 +40,16 @@ void AnalizeScanNode::scan_cb(const sensor_msgs::msg::LaserScan::SharedPtr msg)
     Point2d p;
     obstacles.poses.clear();
     
+
     LaserRangeTo2dPoints(msg->ranges,msg->angle_increment, cloud);
     get_clusters(cloud, clusters, 0.1);
     filter_clusters_by_length(clusters, 0.03, 0.142, filtered_clusters);
+    get_clusters_contour_centroids(filtered_clusters, detected_centroids);
+    //track_clusters(detected_centroids, tracked_centroids);
+    //pub_old_centroids(tracked_centroids);
 
     for (auto & cluster_ : filtered_clusters)
     {
-        p = get_cluster_contour_centroid(cluster_);
         pose.position.x = p.x;
         pose.position.y = p.y;
         obstacles.poses.push_back(pose);
@@ -54,6 +57,11 @@ void AnalizeScanNode::scan_cb(const sensor_msgs::msg::LaserScan::SharedPtr msg)
     obstacles.header.frame_id = msg->header.frame_id;
     obstacles.header.stamp    = msg->header.stamp;
     obs_pub->publish(obstacles);
+
+    // Track scan
+
+    // Publis 
+
     return;
 }
 

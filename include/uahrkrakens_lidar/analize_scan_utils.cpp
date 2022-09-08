@@ -216,7 +216,70 @@ Point2d nearest_centroid(const Point2d &center, const std::vector<Point2d> &neig
 }
 
 
-void track_obstacles(const std::vector<Point2d> &new_centroid, std::vector<Obstacle> &tracked_obstacles)
+
+bool same_centroid(Point2d centroid1,Point2d centroid2){
+    return (centroid1 == centroid2);
+}
+
+int get_nearest_centroid(Point2d center, std::vector<Point2d> centroids){
+    return 0;
+}
+
+void track_obstacles(const std::vector<Point2d> &detected_obstacles, std::vector<Obstacle> &tracked_obstacles)
 {
+    std::vector<int>  similar_centroids;
+    std::vector<int>  remove_indexes;
+    std::vector<int>  tracked_indexes;
+    std::vector<Point2d> aux_vector;
+    int index;
+    // Iterate over the tracked obstacles
+    for(int itrac = 0; itrac < tracked_obstacles.size(); itrac++)
+    {
+        similar_centroids.clear();
+        // Compare the new centroid with 
+        // all the tracked obstacles
+        for(int idet = 0; idet < detected_obstacles.size(); idet++)
+        {
+            if (same_centroid(tracked_obstacles[itrac].centroid,detected_obstacles[idet])) similar_centroids.push_back(idet); 
+        }
+
+        switch (similar_centroids.size())
+        {
+            case 0:
+                if(tracked_obstacles[itrac].track_count > 0) 
+                    tracked_obstacles[itrac].track_count--;
+                else 
+                    remove_indexes.push_back(itrac);
+                break;
+            case 1:
+                tracked_obstacles[itrac].track_count++;
+                // @todo detec if is static noise if(is_noise)...
+                tracked_obstacles[itrac].centroid = detected_obstacles[similar_centroids[0]];
+                tracked_indexes.push_back(similar_centroids[0]);
+                break;
+            default:
+                tracked_obstacles[itrac].track_count++;
+                aux_vector.clear();
+                for(int i = 0; i < similar_centroids.size(); i++)
+                {
+                    aux_vector.emplace_back(detected_obstacles[similar_centroids[i]]);
+                }
+
+                index = get_nearest_centroid(tracked_obstacles[itrac].centroid, aux_vector);
+                tracked_obstacles[itrac].centroid = detected_obstacles[index];
+                tracked_indexes.push_back(index);
+                break;
+        }
+    }
+
+    // Delete items in a descendent order
+    for(int i = remove_indexes.size() - 1; i>=0; i++){
+        tracked_obstacles.erase(tracked_obstacles.begin() + i);
+    }
+
+    // Add new items
+
+
+
     return;
 }
