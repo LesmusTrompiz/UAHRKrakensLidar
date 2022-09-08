@@ -62,6 +62,9 @@ if(BUILD_TESTING)
   ament_add_gtest(get_cluster_centroid_test tests/GetClusterCentroid.cpp ${UTILS_SRC})
   target_include_directories(get_cluster_centroid_test PUBLIC tests/) 
 
+  ament_add_gtest(track_obstacles_test tests/TrackObstacle.cpp ${UTILS_SRC})
+  target_include_directories(track_obstacles_test PUBLIC tests/) 
+
 
 endif()
 
