@@ -216,5 +216,7 @@ Point2d nearest_centroid(const Point2d &center, const std::vector<Point2d> &neig
 }
 
 
-
-
+void track_obstacles(const std::vector<Point2d> &new_centroid, std::vector<Obstacle> &tracked_obstacles)
+{
+    return;
+}
