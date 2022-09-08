@@ -148,7 +148,6 @@ float get_cluster_length(const std::vector<Point2d> &cluster) {
     for (auto p = cluster.begin() +1; p < cluster.end(); p++ )
     {
         length = length + calculate_dist(*old_p,*p);
-        std::cout << calculate_dist(*old_p,*p);
         old_p = p;
     }
     return length;
