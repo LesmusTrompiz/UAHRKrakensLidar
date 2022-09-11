@@ -196,6 +196,19 @@ Point2d get_cluster_contour_centroid (const cluster &cluster_) {
     return centroid;
 }
 
+void get_clusters_centroid(const std::vector<cluster> &clusters, std::vector<Point2d> &centroids)
+{
+    centroids.clear();
+
+    for(auto &c : clusters)
+    {
+        centroids.emplace_back(get_cluster_contour_centroid(c));
+    }
+    return;
+}
+
+
+
 
 Point2d nearest_centroid(const Point2d &center, const std::vector<Point2d> &neighbours)
 {
@@ -225,61 +238,58 @@ int get_nearest_centroid(Point2d center, std::vector<Point2d> centroids){
     return 0;
 }
 
-void track_obstacles(const std::vector<Point2d> &detected_obstacles, std::vector<Obstacle> &tracked_obstacles)
+void track_obstacles(std::vector<Point2d> &detected_obstacles, std::vector<Obstacle> &tracked_obstacles)
 {
     std::vector<int>  similar_centroids;
-    std::vector<int>  remove_indexes;
-    std::vector<int>  tracked_indexes;
     std::vector<Point2d> aux_vector;
     int index;
     // Iterate over the tracked obstacles
-    for(int itrac = 0; itrac < tracked_obstacles.size(); itrac++)
+    int itrac = 0; 
+
+    if(tracked_obstacles.size() == 0)
     {
+        for(auto &obs : detected_obstacles)
+        {
+            tracked_obstacles.emplace_back(obs);
+        }
+        return;
+    }
+    while(itrac < tracked_obstacles.size()){
         similar_centroids.clear();
         // Compare the new centroid with 
         // all the tracked obstacles
-        for(int idet = 0; idet < detected_obstacles.size(); idet++)
-        {
+        for(int idet = 0; idet < detected_obstacles.size(); idet++){
             if (same_centroid(tracked_obstacles[itrac].centroid,detected_obstacles[idet])) similar_centroids.push_back(idet); 
         }
 
-        switch (similar_centroids.size())
-        {
+        switch (similar_centroids.size()){
             case 0:
-                if(tracked_obstacles[itrac].track_count > 0) 
+                if(tracked_obstacles[itrac].track_count > 0){
                     tracked_obstacles[itrac].track_count--;
-                else 
-                    remove_indexes.push_back(itrac);
+                    ++itrac;
+                }
+                else
+                    tracked_obstacles.erase(tracked_obstacles.begin() + itrac);
                 break;
             case 1:
                 tracked_obstacles[itrac].track_count++;
                 // @todo detec if is static noise if(is_noise)...
                 tracked_obstacles[itrac].centroid = detected_obstacles[similar_centroids[0]];
-                tracked_indexes.push_back(similar_centroids[0]);
+                detected_obstacles.erase(detected_obstacles.begin()+ similar_centroids[0]);
+                ++itrac;
                 break;
             default:
                 tracked_obstacles[itrac].track_count++;
                 aux_vector.clear();
-                for(int i = 0; i < similar_centroids.size(); i++)
-                {
+                for(int i = 0; i < similar_centroids.size(); i++){
                     aux_vector.emplace_back(detected_obstacles[similar_centroids[i]]);
                 }
-
                 index = get_nearest_centroid(tracked_obstacles[itrac].centroid, aux_vector);
-                tracked_obstacles[itrac].centroid = detected_obstacles[index];
-                tracked_indexes.push_back(index);
+                tracked_obstacles[itrac].centroid = detected_obstacles[similar_centroids[index]];
+                detected_obstacles.erase(detected_obstacles.begin()+ similar_centroids[index]);
+                ++itrac;
                 break;
-        }
+        }   
     }
-
-    // Delete items in a descendent order
-    for(int i = remove_indexes.size() - 1; i>=0; i++){
-        tracked_obstacles.erase(tracked_obstacles.begin() + i);
-    }
-
-    // Add new items
-
-
-
     return;
 }

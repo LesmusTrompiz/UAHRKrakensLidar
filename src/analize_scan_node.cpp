@@ -18,6 +18,8 @@ class AnalizeScanNode : public rclcpp::Node
         std::vector<Point2d> cloud;
         std::vector<cluster> clusters;
         std::vector<cluster> filtered_clusters;
+        std::vector<Point2d> detected_centroids;
+        std::vector<Obstacle> tracked_obstacles;
         geometry_msgs::msg::PoseArray obstacles;
 };
 
@@ -44,10 +46,12 @@ void AnalizeScanNode::scan_cb(const sensor_msgs::msg::LaserScan::SharedPtr msg)
     LaserRangeTo2dPoints(msg->ranges,msg->angle_increment, cloud);
     get_clusters(cloud, clusters, 0.1);
     filter_clusters_by_length(clusters, 0.03, 0.142, filtered_clusters);
-    get_clusters_contour_centroids(filtered_clusters, detected_centroids);
-    //track_clusters(detected_centroids, tracked_centroids);
+    get_clusters_centroid(filtered_clusters, detected_centroids);
+    track_obstacles(detected_centroids, tracked_obstacles);
     //pub_old_centroids(tracked_centroids);
 
+
+    /*
     for (auto & cluster_ : filtered_clusters)
     {
         pose.position.x = p.x;
@@ -57,7 +61,7 @@ void AnalizeScanNode::scan_cb(const sensor_msgs::msg::LaserScan::SharedPtr msg)
     obstacles.header.frame_id = msg->header.frame_id;
     obstacles.header.stamp    = msg->header.stamp;
     obs_pub->publish(obstacles);
-
+    */
     // Track scan
 
     // Publis 
