@@ -4,19 +4,6 @@ extern "C"{
     #include <math.h>
     #include <cassert>
 }
-//void filter_beams_by_range(const std::vector<float> ranges, std::vector<polar> polars, const float min_range, const float max_range, const float min_angle, const float max_angle, const float delta_angle)
-//{
-//    /**
-//     * @brief Filters a vector of beams by  
-//     * 
-//     * @param b Byte received
-//     */
-//
-//
-//    return;
-//}
-
-
 
 void LaserRangeTo2dPoints(const std::vector<float> &ranges,const float &angle_increment, std::vector<Point2d> &out_points)
 {
@@ -230,8 +217,14 @@ Point2d nearest_centroid(const Point2d &center, const std::vector<Point2d> &neig
 
 
 
-bool same_centroid(Point2d centroid1,Point2d centroid2){
-    return (centroid1 == centroid2);
+bool same_centroid(Point2d c1,Point2d c2){
+    int dist = 0.3;
+    return same_cluster(c1, c2, 0.3);
+}
+
+bool is_noise(Point2d c1,Point2d c2){
+    int dist = 0.3;
+    return same_cluster(c1, c2, 0.1);
 }
 
 int get_nearest_centroid(Point2d center, std::vector<Point2d> centroids){
@@ -259,7 +252,7 @@ void track_obstacles(std::vector<Point2d> &detected_obstacles, std::vector<Obsta
         // Compare the new centroid with 
         // all the tracked obstacles
         for(int idet = 0; idet < detected_obstacles.size(); idet++){
-            if (same_centroid(tracked_obstacles[itrac].centroid,detected_obstacles[idet])) similar_centroids.push_back(idet); 
+            if (same_centroid(tracked_obstacles[itrac].centroid,detected_obstacles[idet]))   similar_centroids.push_back(idet); 
         }
 
         switch (similar_centroids.size()){
@@ -268,13 +261,15 @@ void track_obstacles(std::vector<Point2d> &detected_obstacles, std::vector<Obsta
                     tracked_obstacles[itrac].track_count--;
                     ++itrac;
                 }
-                else
+                else{
                     tracked_obstacles.erase(tracked_obstacles.begin() + itrac);
+                }
+
                 break;
             case 1:
                 tracked_obstacles[itrac].track_count++;
                 // @todo detec if is static noise if(is_noise)...
-                tracked_obstacles[itrac].centroid = detected_obstacles[similar_centroids[0]];
+                //tracked_obstacles[itrac].centroid = detected_obstacles[similar_centroids[0]];
                 detected_obstacles.erase(detected_obstacles.begin()+ similar_centroids[0]);
                 ++itrac;
                 break;
@@ -286,6 +281,8 @@ void track_obstacles(std::vector<Point2d> &detected_obstacles, std::vector<Obsta
                 }
                 index = get_nearest_centroid(tracked_obstacles[itrac].centroid, aux_vector);
                 tracked_obstacles[itrac].centroid = detected_obstacles[similar_centroids[index]];
+                std::cout << "El centroide similar es " << similar_centroids[index];
+                
                 detected_obstacles.erase(detected_obstacles.begin()+ similar_centroids[index]);
                 ++itrac;
                 break;

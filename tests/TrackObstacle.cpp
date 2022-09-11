@@ -104,7 +104,6 @@ TEST(TrackObstacle, EmptyScan){
 }
 
 
-/*
 TEST(TrackObstacle, SimilarCentroids){
     /**
         @test Test the basic use of the 
@@ -114,10 +113,9 @@ TEST(TrackObstacle, SimilarCentroids){
         similar to the centroids
         of the tracked vector. 
         The output tracked vector 
-        should increase its
-         track_count elements +1. 
+        should increase its 
+        track_count elements +1. 
     */
-/*
     std::vector<Point2d> centroids;
     std::vector<Obstacle> tracked_obstacles;
     std::vector<Obstacle> expected_output;
@@ -126,7 +124,7 @@ TEST(TrackObstacle, SimilarCentroids){
     // Generate some centroids
     for (int i=0; i<=5; i++)
     {
-        centroids.emplace_back(i,i);
+        centroids.emplace_back(i-0.05,i-0.05);
         tracked_obstacles.emplace_back(i,i,i);
         expected_output.emplace_back(i,i,i+1);
     }
@@ -138,4 +136,3 @@ TEST(TrackObstacle, SimilarCentroids){
     ASSERT_EQ(tracked_obstacles.size(),(long unsigned int) 6);
     EXPECT_EQ(tracked_obstacles,expected_output);
 }
-*/
